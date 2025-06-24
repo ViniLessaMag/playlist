@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Minha Playlist</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #6c5ce7;
+      --secondary-color: #a29bfe;
+      --dark-bg: #1e1e2e;
+      --dark-item: #2d2d3a;
+      --light-bg: #f8f9fa;
+      --light-item: #ffffff;
+    }
+
+    body {
+      padding-top: 30px;
+      background-color: var(--light-bg);
+      color: #333;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      transition: all 0.4s ease;
+      min-height: 100vh;
+    }
+
+    .dark-mode {
+      background-color: var(--dark-bg);
+      color: #f0f0f0;
+    }
+
+    .container {
+      max-width: 800px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+      position: relative;
+    }
+
+    .header h1 {
+      font-weight: 700;
+      color: var(--primary-color);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header .theme-toggle {
+      position: absolute;
+      right: 15px;
+      top: 0;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--primary-color);
+    }
+
+    .add-music-container {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+
+    .add-music-container input {
+      flex: 1;
+      border-radius: 50px;
+      padding: 12px 20px;
+      border: 2px solid #e0e0e0;
+      transition: all 0.3s;
+    }
+
+    .add-music-container input:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+    }
+
+    .add-music-container button {
+      border-radius: 50px;
+      padding: 0 25px;
+      background-color: var(--primary-color);
+      border: none;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .add-music-container button:hover {
+      background-color: #5649c0;
+      transform: translateY(-2px);
+    }
+
+    .playlist-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .counter {
+      font-size: 0.9rem;
+      color: #666;
+      background-color: rgba(108, 92, 231, 0.1);
+      padding: 5px 12px;
+      border-radius: 50px;
+      font-weight: 500;
+    }
+
+    .dark-mode .counter {
+      color: #ccc;
+    }
+
+    .control-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .control-buttons button {
+      border-radius: 50px;
+      padding: 5px 12px;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    #playlist {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .playlist-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--light-item);
+      padding: 12px 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s;
+      cursor: grab;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dark-mode .playlist-item {
+      background-color: var(--dark-item);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .playlist-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .dark-mode .playlist-item:hover {
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .playlist-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 4px;
+      background-color: var(--primary-color);
+    }
+
+    .music-content {
+      flex: 1;
+      padding-right: 15px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .music-content a {
+      color: var(--primary-color);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .music-content a:hover {
+      color: #5649c0;
+      text-decoration: underline;
+    }
+
+    .dark-mode .music-content a {
+      color: var(--secondary-color);
+    }
+
+    .music-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .music-actions button {
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .edit-btn {
+      background-color: rgba(255, 193, 7, 0.2);
+      color: #ffc107;
+    }
+
+    .edit-btn:hover {
+      background-color: rgba(255, 193, 7, 0.3);
+    }
+
+    .delete-btn {
+      background-color: rgba(220, 53, 69, 0.2);
+      color: #dc3545;
+    }
+
+    .delete-btn:hover {
+      background-color: rgba(220, 53, 69, 0.3);
+    }
+
+    .edit-input {
+      width: 100%;
+      border: none;
+      background: transparent;
+      color: inherit;
+      font-size: 1rem;
+      padding: 5px;
+      border-bottom: 2px solid var(--primary-color);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #666;
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      color: var(--secondary-color);
+      margin-bottom: 1rem;
+    }
+
+    .empty-state p {
+      font-size: 1.1rem;
+    }
+
+    .dark-mode .empty-state {
+      color: #aaa;
+    }
+
+    @media (max-width: 576px) {
+      .header h1 {
+        font-size: 1.8rem;
+      }
+      
+      .playlist-controls {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .add-music-container {
+        flex-direction: column;
+      }
+      
+      .add-music-container button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1><i class="fas fa-music"></i> Minha Playlist</h1>
+      <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
+    </div>
+
+    <div class="add-music-container">
+      <input type="text" id="musicInput" class="form-control" placeholder="Adicione uma música ou link..." onkeydown="if(event.key === 'Enter') addMusic()">
+      <button class="btn btn-primary" onclick="addMusic()"><i class="fas fa-plus me-1"></i> Adicionar</button>
+    </div>
+
+    <div class="playlist-controls">
+      <div class="counter" id="counter"><i class="fas fa-music me-1"></i> 0 músicas</div>
+      <div class="control-buttons">
+        <button class="btn btn-outline-primary" onclick="sortPlaylist(true)"><i class="fas fa-sort-alpha-down me-1"></i>A-Z</button>
+        <button class="btn btn-outline-primary" onclick="sortPlaylist(false)"><i class="fas fa-sort-alpha-down-alt me-1"></i>Z-A</button>
+        <button class="btn btn-outline-danger" onclick="clearPlaylist()"><i class="fas fa-trash me-1"></i>Limpar</button>
+      </div>
+    </div>
+
+    <div id="playlist">
+      <!-- Itens da playlist serão inseridos aqui via JavaScript -->
+    </div>
+    
+    <div id="emptyState" class="empty-state" style="display: none;">
+      <i class="fas fa-music"></i>
+      <h4>Sua playlist está vazia</h4>
+      <p>Adicione músicas para começar!</p>
+    </div>
+  </div>
+
+  <script>
+    const musicInput = document.getElementById('musicInput');
+    const playlistContainer = document.getElementById('playlist');
+    const counter = document.getElementById('counter');
+    const emptyState = document.getElementById('emptyState');
+
+    let playlist = JSON.parse(localStorage.getItem('playlist')) || [];
+
+    function save() {
+      localStorage.setItem('playlist', JSON.stringify(playlist));
+      updateCounter();
+      toggleEmptyState();
+    }
+
+    function renderPlaylist() {
+      playlistContainer.innerHTML = '';
+      
+      if (playlist.length === 0) {
+        toggleEmptyState();
+        return;
+      }
+      
+      playlist.forEach((music, index) => {
+        const item = document.createElement('div');
+        item.className = 'playlist-item';
+        item.setAttribute('draggable', 'true');
+        item.dataset.index = index;
+
+        const isLink = music.startsWith('http');
+        const content = isLink
+          ? `<a href="${music}" target="_blank">${music}</a>`
+          : `<span ondblclick="editMusic(${index})">${music}</span>`;
+
+        item.innerHTML = `
+          <div class="music-content">${content}</div>
+          <div class="music-actions">
+            <button class="edit-btn" onclick="editMusic(${index})"><i class="fas fa-edit"></i></button>
+            <button class="delete-btn" onclick="removeMusic(${index})"><i class="fas fa-trash"></i></button>
+          </div>
+        `;
+
+        item.addEventListener('dragstart', (e) => {
+          e.dataTransfer.setData('text/plain', index);
+          setTimeout(() => item.classList.add('dragging'), 0);
+        });
+
+        item.addEventListener('dragend', () => item.classList.remove('dragging'));
+
+        item.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          const afterElement = getDragAfterElement(playlistContainer, e.clientY);
+          const draggingItem = document.querySelector('.dragging');
+          
+          if (afterElement == null) {
+            playlistContainer.appendChild(draggingItem);
+          } else {
+            playlistContainer.insertBefore(draggingItem, afterElement);
+          }
+        });
+
+        item.addEventListener('drop', (e) => {
+          e.preventDefault();
+          const from = parseInt(e.dataTransfer.getData('text/plain'));
+          const to = index;
+          
+          if (from !== to) {
+            const temp = playlist[from];
+            playlist.splice(from, 1);
+            playlist.splice(to, 0, temp);
+            save();
+            renderPlaylist();
+          }
+        });
+
+        playlistContainer.appendChild(item);
+      });
+      
+      toggleEmptyState();
+    }
+
+    function getDragAfterElement(container, y) {
+      const draggableElements = [...container.querySelectorAll('.playlist-item:not(.dragging)')];
+      
+      return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        
+        if (offset < 0 && offset > closest.offset) {
+          return { offset: offset, element: child };
+        } else {
+          return closest;
+        }
+      }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    function addMusic() {
+      const name = musicInput.value.trim();
+      if (name) {
+        playlist.push(name);
+        save();
+        musicInput.value = '';
+        renderPlaylist();
+        musicInput.focus();
+      }
+    }
+
+    function removeMusic(index) {
+      if (confirm('Tem certeza que deseja remover esta música?')) {
+        playlist.splice(index, 1);
+        save();
+        renderPlaylist();
+      }
+    }
+
+    function editMusic(index) {
+      const currentName = playlist[index];
+      const item = playlistContainer.children[index].querySelector('.music-content');
+      item.innerHTML = `
+        <input type="text" class="edit-input" value="${currentName}" 
+               onblur="saveEdit(${index}, this.value)" 
+               onkeydown="if(event.key==='Enter') saveEdit(${index}, this.value)"
+               autofocus>
+      `;
+    }
+
+    function saveEdit(index, newName) {
+      if (newName.trim()) {
+        playlist[index] = newName.trim();
+        save();
+        renderPlaylist();
+      }
+    }
+
+    function clearPlaylist() {
+      if (confirm('Tem certeza que deseja apagar toda a playlist?')) {
+        playlist = [];
+        save();
+        renderPlaylist();
+      }
+    }
+
+    function sortPlaylist(asc = true) {
+      playlist.sort((a, b) => asc ? a.localeCompare(b) : b.localeCompare(a));
+      save();
+      renderPlaylist();
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle('dark-mode');
+      const icon = document.querySelector('.theme-toggle i');
+      if (document.body.classList.contains('dark-mode')) {
+        icon.classList.replace('fa-moon', 'fa-sun');
+      } else {
+        icon.classList.replace('fa-sun', 'fa-moon');
+      }
+    }
+
+    function updateCounter() {
+      const count = playlist.length;
+      counter.innerHTML = `<i class="fas fa-music me-1"></i> ${count} ${count === 1 ? 'música' : 'músicas'}`;
+    }
+
+    function toggleEmptyState() {
+      if (playlist.length === 0) {
+        emptyState.style.display = 'block';
+        playlistContainer.style.display = 'none';
+      } else {
+        emptyState.style.display = 'none';
+        playlistContainer.style.display = 'flex';
+      }
+    }
+
+    // Inicialização
+    renderPlaylist();
+    updateCounter();
+    toggleEmptyState();
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
