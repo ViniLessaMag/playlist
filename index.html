@@ -311,183 +311,183 @@
     </div>
   </div>
 
-  <script>
-    const musicInput = document.getElementById('musicInput');
-    const playlistContainer = document.getElementById('playlist');
-    const counter = document.getElementById('counter');
-    const emptyState = document.getElementById('emptyState');
+      <script>
+        const musicInput = document.getElementById('musicInput');// pega o input de musica
+        const playlistContainer = document.getElementById('playlist');
+        const counter = document.getElementById('counter');// pega o contador de musicas
+        const emptyState = document.getElementById('emptyState');
 
-    let playlist = JSON.parse(localStorage.getItem('playlist')) || [];
+        let playlist = JSON.parse(localStorage.getItem('playlist')) || [];// 1 L)pega a playlist do localStorage ou cria um array vazio
 
-    function save() {
-      localStorage.setItem('playlist', JSON.stringify(playlist));
-      updateCounter();
-      toggleEmptyState();
-    }
+        function save() {
+          localStorage.setItem('playlist', JSON.stringify(playlist));//2 L) salva a playlist no localStorage
+          updateCounter();
+          toggleEmptyState();
+        }
 
-    function renderPlaylist() {
-      playlistContainer.innerHTML = '';
-      
-      if (playlist.length === 0) {
-        toggleEmptyState();
-        return;
-      }
-      
-      playlist.forEach((music, index) => {
-        const item = document.createElement('div');
-        item.className = 'playlist-item';
-        item.setAttribute('draggable', 'true');
-        item.dataset.index = index;
-
-        const isLink = music.startsWith('http');
-        const content = isLink
-          ? `<a href="${music}" target="_blank">${music}</a>`
-          : `<span ondblclick="editMusic(${index})">${music}</span>`;
-
-        item.innerHTML = `
-          <div class="music-content">${content}</div>
-          <div class="music-actions">
-            <button class="edit-btn" onclick="editMusic(${index})"><i class="fas fa-edit"></i></button>
-            <button class="delete-btn" onclick="removeMusic(${index})"><i class="fas fa-trash"></i></button>
-          </div>
-        `;
-
-        item.addEventListener('dragstart', (e) => {
-          e.dataTransfer.setData('text/plain', index);
-          setTimeout(() => item.classList.add('dragging'), 0);
-        });
-
-        item.addEventListener('dragend', () => item.classList.remove('dragging'));
-
-        item.addEventListener('dragover', (e) => {
-          e.preventDefault();
-          const afterElement = getDragAfterElement(playlistContainer, e.clientY);
-          const draggingItem = document.querySelector('.dragging');
+        function renderPlaylist() {
+          playlistContainer.innerHTML = '';
           
-          if (afterElement == null) {
-            playlistContainer.appendChild(draggingItem);
-          } else {
-            playlistContainer.insertBefore(draggingItem, afterElement);
+          if (playlist.length === 0) {
+            toggleEmptyState();
+            return;
           }
-        });
-
-        item.addEventListener('drop', (e) => {
-          e.preventDefault();
-          const from = parseInt(e.dataTransfer.getData('text/plain'));
-          const to = index;
           
-          if (from !== to) {
-            const temp = playlist[from];
-            playlist.splice(from, 1);
-            playlist.splice(to, 0, temp);
+          playlist.forEach((music, index) => {
+            const item = document.createElement('div');
+            item.className = 'playlist-item';
+            item.setAttribute('draggable', 'true');
+            item.dataset.index = index;
+
+            const isLink = music.startsWith('http');// verifica se a musica é um link
+            const content = isLink
+              ? `<a href="${music}" target="_blank">${music}</a>`
+              : `<span ondblclick="editMusic(${index})">${music}</span>`;
+
+            item.innerHTML = `
+              <div class="music-content">${content}</div>
+              <div class="music-actions">
+                <button class="edit-btn" onclick="editMusic(${index})"><i class="fas fa-edit"></i></button>
+                <button class="delete-btn" onclick="removeMusic(${index})"><i class="fas fa-trash"></i></button>
+              </div>
+            `;// cria o item da playlist
+
+            item.addEventListener('dragstart', (e) => {// 1 Ev) confere quando o mouse começa a arrastar o item
+              e.dataTransfer.setData('text/plain', index);
+              setTimeout(() => item.classList.add('dragging'), 0);
+            });
+
+            item.addEventListener('dragend', () => item.classList.remove('dragging'));  // 2 Ev) confere quando o mouse solta o item
+
+            item.addEventListener('dragover', (e) => {//  3 Ev) confere quando o mouse esta sobre o item arrastado
+              e.preventDefault();
+              const afterElement = getDragAfterElement(playlistContainer, e.clientY);
+              const draggingItem = document.querySelector('.dragging');
+              
+              if (afterElement == null) {// verifica se o item esta no final da lista
+                playlistContainer.appendChild(draggingItem);
+              } else {
+                playlistContainer.insertBefore(draggingItem, afterElement);
+              }
+            });
+
+            item.addEventListener('drop', (e) => {// 4 Ev) confere quando o mouse solta o item arrastado
+              e.preventDefault();
+              const from = parseInt(e.dataTransfer.getData('text/plain'));
+              const to = index;
+              
+              if (from !== to) {// verifica se o item foi movido
+                const temp = playlist[from];
+                playlist.splice(from, 1);
+                playlist.splice(to, 0, temp);
+                save();
+                renderPlaylist();
+              }
+            });
+
+            playlistContainer.appendChild(item);
+          });
+          
+          toggleEmptyState();
+        }
+
+        function getDragAfterElement(container, y) {// pega o elemento que esta sendo arrastado
+          const draggableElements = [...container.querySelectorAll('.playlist-item:not(.dragging)')];
+          
+          return draggableElements.reduce((closest, child) => {// verifica qual elemento esta mais proximo do mouse
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+            
+            if (offset < 0 && offset > closest.offset) {
+              return { offset: offset, element: child };
+            } else {
+              return closest;
+            }
+          }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        function addMusic() {
+          const name = musicInput.value.trim();
+          if (name) {
+            playlist.push(name);
+            save();
+            musicInput.value = '';
+            renderPlaylist();
+            musicInput.focus();
+          }
+        }
+
+        function removeMusic(index) {
+          if (confirm('Tem certeza que deseja remover esta música?')) {
+            playlist.splice(index, 1);
             save();
             renderPlaylist();
           }
-        });
-
-        playlistContainer.appendChild(item);
-      });
-      
-      toggleEmptyState();
-    }
-
-    function getDragAfterElement(container, y) {
-      const draggableElements = [...container.querySelectorAll('.playlist-item:not(.dragging)')];
-      
-      return draggableElements.reduce((closest, child) => {
-        const box = child.getBoundingClientRect();
-        const offset = y - box.top - box.height / 2;
-        
-        if (offset < 0 && offset > closest.offset) {
-          return { offset: offset, element: child };
-        } else {
-          return closest;
         }
-      }, { offset: Number.NEGATIVE_INFINITY }).element;
-    }
 
-    function addMusic() {
-      const name = musicInput.value.trim();
-      if (name) {
-        playlist.push(name);
-        save();
-        musicInput.value = '';
-        renderPlaylist();
-        musicInput.focus();
-      }
-    }
+        function editMusic(index) {
+          const currentName = playlist[index];
+          const item = playlistContainer.children[index].querySelector('.music-content');
+          item.innerHTML = `
+            <input type="text" class="edit-input" value="${currentName}" 
+                  onblur="saveEdit(${index}, this.value)" 
+                  onkeydown="if(event.key==='Enter') saveEdit(${index}, this.value)"
+                  autofocus>
+          `;
+        }
 
-    function removeMusic(index) {
-      if (confirm('Tem certeza que deseja remover esta música?')) {
-        playlist.splice(index, 1);
-        save();
-        renderPlaylist();
-      }
-    }
+        function saveEdit(index, newName) {
+          if (newName.trim()) {
+            playlist[index] = newName.trim();
+            save();
+            renderPlaylist();
+          }
+        }
 
-    function editMusic(index) {
-      const currentName = playlist[index];
-      const item = playlistContainer.children[index].querySelector('.music-content');
-      item.innerHTML = `
-        <input type="text" class="edit-input" value="${currentName}" 
-               onblur="saveEdit(${index}, this.value)" 
-               onkeydown="if(event.key==='Enter') saveEdit(${index}, this.value)"
-               autofocus>
-      `;
-    }
+        function clearPlaylist() {
+          if (confirm('Tem certeza que deseja apagar toda a playlist?')) {
+            playlist = [];
+            save();
+            renderPlaylist();
+          }
+        }
 
-    function saveEdit(index, newName) {
-      if (newName.trim()) {
-        playlist[index] = newName.trim();
-        save();
-        renderPlaylist();
-      }
-    }
+        function sortPlaylist(asc = true) {
+          playlist.sort((a, b) => asc ? a.localeCompare(b) : b.localeCompare(a));
+          save();
+          renderPlaylist();// renderiza a playlist novamente
+        }
 
-    function clearPlaylist() {
-      if (confirm('Tem certeza que deseja apagar toda a playlist?')) {
-        playlist = [];
-        save();
-        renderPlaylist();
-      }
-    }
+        function toggleTheme() {
+          document.body.classList.toggle('dark-mode');
+          const icon = document.querySelector('.theme-toggle i');
+          if (document.body.classList.contains('dark-mode')) {
+            icon.classList.replace('fa-moon', 'fa-sun');
+          } else {
+            icon.classList.replace('fa-sun', 'fa-moon');
+          }
+        }
 
-    function sortPlaylist(asc = true) {
-      playlist.sort((a, b) => asc ? a.localeCompare(b) : b.localeCompare(a));
-      save();
-      renderPlaylist();
-    }
+        function updateCounter() {
+          const count = playlist.length;
+          counter.innerHTML = `<i class="fas fa-music me-1"></i> ${count} ${count === 1 ? 'música' : 'músicas'}`;
+        }
 
-    function toggleTheme() {
-      document.body.classList.toggle('dark-mode');
-      const icon = document.querySelector('.theme-toggle i');
-      if (document.body.classList.contains('dark-mode')) {
-        icon.classList.replace('fa-moon', 'fa-sun');
-      } else {
-        icon.classList.replace('fa-sun', 'fa-moon');
-      }
-    }
+        function toggleEmptyState() {
+          if (playlist.length === 0) {
+            emptyState.style.display = 'block';
+            playlistContainer.style.display = 'none';
+          } else {
+            emptyState.style.display = 'none';
+            playlistContainer.style.display = 'flex';
+          }
+        }
 
-    function updateCounter() {
-      const count = playlist.length;
-      counter.innerHTML = `<i class="fas fa-music me-1"></i> ${count} ${count === 1 ? 'música' : 'músicas'}`;
-    }
-
-    function toggleEmptyState() {
-      if (playlist.length === 0) {
-        emptyState.style.display = 'block';
-        playlistContainer.style.display = 'none';
-      } else {
-        emptyState.style.display = 'none';
-        playlistContainer.style.display = 'flex';
-      }
-    }
-
-    // Inicialização
-    renderPlaylist();
-    updateCounter();
-    toggleEmptyState();
-  </script>
+        // Inicialização
+        renderPlaylist();// renderiza a playlist ao carregar a pagina
+        updateCounter();// atualiza o contador de musicas
+        toggleEmptyState();// verifica se a playlist esta vazia
+      </script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
