@@ -14,6 +14,8 @@
       --dark-item: #2d2d3a;
       --light-bg: #f8f9fa;
       --light-item: #ffffff;
+      --contraste-bg: #00ff62;
+      --contraste-item: #97f5bb;
     }
 
     body {
@@ -301,7 +303,37 @@
       border: none;
       border-radius: 50px;
       cursor: pointer;
-    } 
+    }       
+    
+    /* ...existing code... */
+
+    .alto-contraste {
+      background-color: var(--contraste-bg) !important;
+      color: #000 !important;
+    }
+    .alto-contraste .playlist-item {
+      background-color: var(--contraste-item) !important;
+      color: #000 !important;
+    }
+    .alto-contraste .counter,
+    .alto-contraste .add-music-container input,
+    .alto-contraste .add-music-container button,
+    .alto-contraste .control-buttons button {
+      background-color: var(--contraste-item) !important;
+      color: #000 !important;
+      border-color: #000 !important;
+    }
+    
+    #mudarcontraste {
+      position: absolute;
+      right: 60px;
+      top: 0;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--primary-color);
+    }
   </style>
 </head>
 <body>
@@ -309,6 +341,7 @@
     <div class="header">
       <h1><i class="fas fa-music"></i> Minha Playlist</h1>
       <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
+      <button id="mudarcontraste" class="theme-toggle" onclick="toggleContraste()"><i class="fas fa-tree-city"></i></button>
     </div>
 
     <div class="add-music-container">
@@ -364,6 +397,10 @@ if (contadorBtn) {
 }
 
 // ...existing code...
+function toggleContraste() {
+  document.body.classList.toggle('alto-contraste');
+  document.body.classList.remove('dark-mode'); // Garante que só um modo fique ativo
+}
 //cliques no Instagram
 let clicksinta = Number(localStorage.getItem('instaClicks')) || 0;
 const contadorinsta = document.getElementById('instagram');
