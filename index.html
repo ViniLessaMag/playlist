@@ -25,7 +25,7 @@
       min-height: 100vh;
     }
 
-    .dark-mode {
+    .dark-mode {  
       background-color: var(--dark-bg);
       color: #f0f0f0;
     }
@@ -277,6 +277,31 @@
         justify-content: center;
       }
     }
+
+    #contador { /* Contador de cliques */
+      margin: 20px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      padding: 10px 20px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+
+    }
+
+    #instagram { /* Botão do Instagram */
+      margin: 20px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      padding: 10px 20px;
+      background: linear-gradient(to right, #f58529, #dd2a7b, #8134af, #515bd4, #3b5998);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+    } 
   </style>
 </head>
 <body>
@@ -311,19 +336,53 @@
     </div>
   </div>
 
+  <div>
+    <button id="contador">Contador :D</button>
+  </div>
+
+  <div> 
+    <button id="instagram">Insta</button>
+  </div>
+
       <script>
         const musicInput = document.getElementById('musicInput');// pega o input de musica
         const playlistContainer = document.getElementById('playlist');
         const counter = document.getElementById('counter');// pega o contador de musicas
         const emptyState = document.getElementById('emptyState');
-
         let playlist = JSON.parse(localStorage.getItem('playlist')) || [];// 1 L)pega a playlist do localStorage ou cria um array vazio
 
-        function save() {
-          localStorage.setItem('playlist', JSON.stringify(playlist));//2 L) salva a playlist no localStorage
-          updateCounter();
-          toggleEmptyState();
-        }
+// ...existing code...
+
+let clicks = 0;
+const contadorBtn = document.getElementById('contador');
+
+if (contadorBtn) {
+  contadorBtn.addEventListener('click', function() {
+    clicks++;
+    contadorBtn.textContent = `Contador: ${clicks}`;
+  });
+}
+
+// ...existing code...
+//cliques no Instagram
+let clicksinta = Number(localStorage.getItem('instaClicks')) || 0;
+const contadorinsta = document.getElementById('instagram');
+
+if (contadorinsta) {
+  contadorinsta.addEventListener('click', function(){
+    clicksinta++;
+    localStorage.setItem('instaClicks', clicksinta);// Salva o contador de cliques no Instagram no localStorage
+      window.open('https://www.instagram.com/vinilm08', '_blank');// Substitua 'yourprofile' pelo seu perfil do Instagram
+    contadorinsta.textContent = `Insta cliques: ${clicksinta}`;// Contador de cliques no Instagram
+  });
+}
+
+function save() {
+  localStorage.setItem('playlist', JSON.stringify(playlist));//2 L) salva a playlist no localStorage
+  updateCounter();
+  toggleEmptyState();
+}
+
 
         function renderPlaylist() {
           playlistContainer.innerHTML = '';
@@ -333,7 +392,7 @@
             return;
           }
           
-          playlist.forEach((music, index) => {
+          playlist.forEach((music, index) => { 
             const item = document.createElement('div');
             item.className = 'playlist-item';
             item.setAttribute('draggable', 'true');
