@@ -14,8 +14,8 @@
       --dark-item: #2d2d3a;
       --light-bg: #f8f9fa;
       --light-item: #ffffff;
-      --contraste-bg: #00ff62;
-      --contraste-item: #97f5bb;
+      --contraste-bg: #df7ad6;
+      --contraste-item: #eeb0f7;
     }
 
     body {
@@ -301,7 +301,7 @@
       background: linear-gradient(to right, #f58529, #dd2a7b, #8134af, #515bd4, #3b5998);
       color: white;
       border: none;
-      border-radius: 50px;
+      border-radius: 50px;localStorage.setItem('instaClicks', clicksinta);
       cursor: pointer;
     }       
     
@@ -336,6 +336,8 @@
     }
   </style>
 </head>
+
+
 <body>
   <div class="container">
     <div class="header">
@@ -377,12 +379,15 @@
     <button id="instagram">Insta</button>
   </div>
 
+
+  
       <script>
         const musicInput = document.getElementById('musicInput');// pega o input de musica
         const playlistContainer = document.getElementById('playlist');
         const counter = document.getElementById('counter');// pega o contador de musicas
         const emptyState = document.getElementById('emptyState');
         let playlist = JSON.parse(localStorage.getItem('playlist')) || [];// 1 L)pega a playlist do localStorage ou cria um array vazio
+
 
 // ...existing code...
 
@@ -578,6 +583,10 @@ function save() {
             playlistContainer.style.display = 'flex';
           }
         }
+
+
+
+
 
         // Inicialização
         renderPlaylist();// renderiza a playlist ao carregar a pagina
